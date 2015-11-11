@@ -2,17 +2,17 @@
 Table of Contents
 =================
 
-  * [Summary](#Summary)
+  * [Summary](#summary)
  
-  * [1. Using API](#1. Using API)
-  * [2.  Explore Zillow data using rvest](#2.  Explore Zillow data using rvest)
+  * [1. Using API](#1-using-api)
+  * [2. Explore Zillow data using rvest](#2-Explore Zillow data using rvest)
  
 ## Summary
 * Demonstrate using Zillow official API to extract information
 * Alternatively, scrape Zillow website to get richer information and geocoding the address
 * Visualize relationship between real estate location and value in a map
 
-##1. Using API 
+##1.Using API 
 <http://www.zillow.com/howto/api/GetSearchResults.htm>
 
 ```{r}
@@ -43,7 +43,7 @@ kable(data.frame(zpid,amount,low,high,valueChange30Day))
 
 
 
-##2.  Explore Zillow data using rvest
+##2.Explore Zillow data using rvest
 
 Hui adapted from https://raw.githubusercontent.com/notesofdabbler/blog_notesofdabbler/master/learn_rvest/exploreZillow_w_rvest.R
  
