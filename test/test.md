@@ -295,7 +295,7 @@ plug_url_for_download() {
 ### plug_build
 
 This function is only need for ``*-prebuilt``-like plugins. It overrides default
-building proccess. All we need in case of ``*-prebuilt``-like plugin is only
+building process. All we need in case of ``*-prebuilt``-like plugin is only
 copy binaries. For example:
 
 ```bash
