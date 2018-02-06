@@ -1,24 +1,61 @@
-FROM mjmg/centos-mro-rstudio-opencpu-shiny-server-cuda
+FROM gcr.io/tensorflow/tensorflow:latest-gpu
+MAINTAINER Stefano Picozzi <StefanoPicozzi@gmail.com>
 
-ENV MXNET_VERSION 0.11.0 
+# Install R
+# https://cran.rstudio.com/bin/linux/ubuntu/README.html
+# Dockerfile example at https://github.com/rocker-org/rocker-versioned/blob/master/r-ver/Dockerfile
+ENV R_VERSION=${R_VERSION:-3.4.2} \
+    LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8 \
+    TERM=xterm
+RUN apt-get update
+RUN apt-get install -y apt-transport-https locales
+RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen 
+RUN locale-gen en_US.utf8
+RUN /usr/sbin/update-locale LANG=en_US.UTF-8
+RUN echo "deb http://cran.csiro.au/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
+RUN cat /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y --allow-unauthenticated r-base r-base-dev
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+RUN apt-get update
+RUN apt-get upgrade -y
 
-WORKDIR /tmp
+# Install RStudio
+# https://www.rstudio.com/products/rstudio/download-server/
+# Dockerfile example at https://github.com/rocker-org/rocker-versioned/blob/master/rstudio/Dockerfile
+RUN apt-get install -y wget gdebi-core
+RUN cd /tmp; wget https://download2.rstudio.org/rstudio-server-1.1.383-amd64.deb
+RUN cd /tmp; gdebi -n rstudio-server-1.1.383-amd64.deb
 
-# Setup NVIDIA CUDNN 7 devel
-# From https://gitlab.com/nvidia/cuda/blob/centos7/8.0/devel/cudnn7/Dockerfile
+# Create rstudio user
+RUN useradd rstudio \
+    && echo "rstudio:rstudio" | chpasswd \
+	&& mkdir /home/rstudio \
+	&& chown rstudio:rstudio /home/rstudio \
+	&& addgroup rstudio staff 
 
-ENV CUDNN_VERSION 7.0.4.31
-LABEL com.nvidia.cudnn.version="${CUDNN_VERSION}"
+# Needed for R GPU tools and debugging
+RUN apt-get install -y libcurl4-openssl-dev libssl-dev libssh2-1-dev vim \
+    python-virtualenv mlocate git sudo libedit2 libapparmor1 psmisc python-setuptools iputils-ping \
+    r-cran-ggplot2
+RUN updatedb
 
-# cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
-RUN CUDNN_DOWNLOAD_SUM=c9d6e482063407edaa799c944279e5a1a3a27fd75534982076e62b1bebb4af48 && \
-    curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.0.4/cudnn-8.0-linux-x64-v7.tgz -O && \
-    echo "$CUDNN_DOWNLOAD_SUM  cudnn-8.0-linux-x64-v7.tgz" | sha256sum -c - && \
-    tar --no-same-owner -xzf cudnn-8.0-linux-x64-v7.tgz -C /usr/local && \
-    rm cudnn-8.0-linux-x64-v7.tgz && \
-    ldconfig
+# Not sure this is needed
+RUN mkdir /etc/OpenCL; mkdir /etc/OpenCL/vendors; echo "libnvidia-opencl.so.1" >> /etc/OpenCL/vendors/nvidia.icd
 
-RUN \
-  yum install -y cairo-devel libXt-devel opencv-devel
+# Set up S6 init system
+RUN wget -P /tmp/ https://github.com/just-containers/s6-overlay/releases/download/v1.11.0.1/s6-overlay-amd64.tar.gz \
+    && tar xzf /tmp/s6-overlay-amd64.tar.gz -C / \
+    && mkdir -p /etc/services.d/rstudio \
+    && echo '#!/bin/bash \
+    \n exec /usr/lib/rstudio-server/bin/rserver --server-daemonize 0' \
+    > /etc/services.d/rstudio/run \
+    && echo '#!/bin/bash \
+    \n rstudio-server stop' \
+    > /etc/services.d/rstudio/finish
 
-
+# Launch rstudio-server
+USER root
+EXPOSE 8787
+CMD ["/init"]
