@@ -21,40 +21,4 @@ RUN CUDNN_DOWNLOAD_SUM=c9d6e482063407edaa799c944279e5a1a3a27fd75534982076e62b1be
 RUN \
   yum install -y cairo-devel libXt-devel opencv-devel
 
-WORKDIR /tmp
 
-RUN \
-  git clone --recursive https://github.com/apache/incubator-mxnet.git mxnet --branch $MXNET_VERSION
-
-RUN \
-  env
-
-WORKDIR /tmp/mxnet
-
-RUN \
-  make -j$(nproc --ignore=1) USE_OPENCV=1 USE_BLAS=mkl USE_MKL2017=1 USE_MKL2017_EXPERIMENTAL=1 USE_CUDA=1 USE_CUDA_PATH=$CUDA_HOME USE_CUDNN=1
-
-RUN \
-  echo "/usr/local/lib" >> /etc/ld.so.conf.d/local-lib.conf && \
-  ldconfig
-
-WORKDIR /tmp/mxnet
-
-RUN \
-  make rpkg
-
-RUN \
-  R CMD INSTALL mxnet_current_r.tar.gz --no-test-load
-
-WORKDIR /tmp
-
-ADD \
-  test-mxnet.R /tmp/test-mxnet.R
-
-# Test MXnet on docker host using CPU and with supported GPU
-#RUN \
-#  Rscript -e "source('test-mxnet.R")"
-
-
-# Define default command.
-CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
