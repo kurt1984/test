@@ -84,7 +84,7 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
 # pandoc
 
   ## Symlink pandoc & standard pandoc templates for use system-wide
-   ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc /usr/local/bin \
+RUN ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc /usr/local/bin \
   && ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc-citeproc /usr/local/bin \
   && git clone https://github.com/jgm/pandoc-templates \
   && mkdir -p /opt/pandoc/templates \
@@ -93,11 +93,11 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
 
 # install r packages
 
-r -e "install.packages('keras')"
-r -e "install.packages('devtools')"
-r -e "devtools::install_github('yihui/tinytex')"
-r -e "tinytex::install_tinytex()"
-r -e "keras::install_keras(tensorflow = 'gpu')"
+RUN R -e "install.packages('keras')" \
+  && R -e "install.packages('devtools')" \
+  && R -e "devtools::install_github('yihui/tinytex')" \
+  && R -e "tinytex::install_tinytex()" \
+  && R -e "keras::install_keras(tensorflow = 'gpu')" \
 
 # Launch rstudio-server
 USER root
