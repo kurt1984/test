@@ -79,7 +79,7 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
     formatR \
     remotes \
     selectr \
-    caTools
+    caTools \
 
 # pandoc
 
