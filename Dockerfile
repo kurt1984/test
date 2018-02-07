@@ -61,15 +61,8 @@ RUN wget -P /tmp/ https://github.com/just-containers/s6-overlay/releases/downloa
 #EXPOSE 8787
 #CMD ["/init"]
 
-
-RUN useradd guest && \
-    echo guest:guest | chpasswd && \
-    useradd rstudio && \
-    echo rstudio:rstudio | chpasswd && \
-    useradd admin && \
-    echo admin:admin | chpasswd
-
 USER root
 
 EXPOSE 8787
+
 CMD /usr/lib/rstudio-server/bin/rserver --server-daemonize 0
