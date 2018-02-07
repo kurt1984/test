@@ -84,7 +84,7 @@ RUN apt-get update -qq && apt-get -y --no-install-recommends install \
 # pandoc
 
   ## Symlink pandoc & standard pandoc templates for use system-wide
-  && ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc /usr/local/bin \
+   ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc /usr/local/bin \
   && ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc-citeproc /usr/local/bin \
   && git clone https://github.com/jgm/pandoc-templates \
   && mkdir -p /opt/pandoc/templates \
