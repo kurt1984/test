@@ -59,45 +59,6 @@ RUN wget -P /tmp/ https://github.com/just-containers/s6-overlay/releases/downloa
     \n rstudio-server stop' \
     > /etc/services.d/rstudio/finish
 
-# tidyverse
-
-RUN apt-get update -qq && apt-get -y --no-install-recommends install \
-  libxml2-dev \
-  libcairo2-dev \
-  libsqlite-dev \
-  libmariadbd-dev \
-  libmariadb-client-lgpl-dev \
-  libpq-dev \
-  libssh2-1-dev \
-  && R -e "source('https://bioconductor.org/biocLite.R')" \
-  && install2.r --error \
-    --deps TRUE \
-    tidyverse \ 
-    dplyr \
-    ggplot2 \
-    devtools \
-    formatR \
-    remotes \
-    selectr \
-    caTools \
-
-# pandoc
-
-  ## Symlink pandoc & standard pandoc templates for use system-wide
-RUN ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc /usr/local/bin \
-  && ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc-citeproc /usr/local/bin \
-  && git clone https://github.com/jgm/pandoc-templates \
-  && mkdir -p /opt/pandoc/templates \
-  && cp -r pandoc-templates*/* /opt/pandoc/templates && rm -rf pandoc-templates* \
-  && mkdir /root/.pandoc && ln -s /opt/pandoc/templates /root/.pandoc/templates \
-
-# install r packages
-
-RUN R -e "install.packages('keras')" \
-  && R -e "install.packages('devtools')" \
-  && R -e "devtools::install_github('yihui/tinytex')" \
-  && R -e "tinytex::install_tinytex()" \
-  && R -e "keras::install_keras(tensorflow = 'gpu')" \
 
 # Launch rstudio-server
 USER root
