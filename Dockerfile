@@ -28,6 +28,10 @@ RUN apt-get install -y wget gdebi-core
 RUN cd /tmp; wget https://download2.rstudio.org/rstudio-server-1.1.419-amd64.deb
 RUN cd /tmp; gdebi -n rstudio-server-1.1.419-amd64.deb
 
+
+# create root password
+RUN echo "root:Docker!" | chpasswd
+
 # Create rstudio user
 RUN useradd rstudio \
     && echo "rstudio:rstudio" | chpasswd \
