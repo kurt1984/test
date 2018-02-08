@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:latest-gpu-py3
+FROM gcr.io/tensorflow/tensorflow:latest-gpu
 
 MAINTAINER Loreto Parisi loretoparisi@gmail.com
 
